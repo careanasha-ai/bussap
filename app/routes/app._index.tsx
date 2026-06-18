@@ -218,7 +218,25 @@ export default function Dashboard() {
           </Card>
         </InlineGrid>
 
-        
+        {/* Quick Links */}
+        <Card>
+          <BlockStack gap="300">
+            <Text variant="headingMd" as="h2">Explore More</Text>
+            <Divider />
+            <InlineGrid columns={{ xs: 2, md: 5 }} gap="300">
+              <Button url="/app/sales" variant="secondary">📈 Sales</Button>
+              <Button url="/app/products" variant="secondary">📦 Products</Button>
+              <Button url="/app/customers" variant="secondary">👥 Customers</Button>
+              <Button url="/app/cohorts" variant="secondary">🔄 Cohort Retention</Button>
+              <Button url="/app/forecast" variant="secondary">🔮 Revenue Forecast</Button>
+              <Button url="/app/inventory" variant="secondary">🏭 Inventory</Button>
+              <Button url="/app/promotions" variant="secondary">🏷️ Promotions</Button>
+              <Button url="/app/ai-advisor" variant="secondary">🤖 AI Advisor</Button>
+              <Button url="/app/billing" variant="secondary">💳 Plans &amp; Billing</Button>
+              <Button url="/app/settings" variant="secondary">⚙️ Settings</Button>
+            </InlineGrid>
+          </BlockStack>
+        </Card>
 
       </BlockStack>
     </Page>

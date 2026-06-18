@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -34,18 +31,53 @@ model Shop {
   accessToken String
   installedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  plan        String   @default("free")
-  settings    Json?
 
+  // Billing
+  plan              String   @default("free")   // free | growth | pro | scale
+  billingStatus     String   @default("active") // active | cancelled | frozen | pending
+  subscriptionId    String?                      // Shopify subscription GID
+  trialEndsAt       DateTime?
+  currentPeriodEnd  DateTime?
+
+  // Settings
+  settings    ShopSettings?
   insights    AiInsight[]
   cacheEntries CacheEntry[]
+  emailReports EmailReport[]
+}
+
+model ShopSettings {
+  id                    String   @id @default(cuid())
+  shopId                String   @unique
+  shop                  Shop     @relation(fields: [shopId], references: [id])
+
+  // Email report settings
+  emailReportsEnabled   Boolean  @default(false)
+  emailReportFrequency  String   @default("weekly")  // weekly | monthly
+  emailReportDay        Int      @default(1)          // 1=Mon for weekly, 1=1st for monthly
+  emailReportRecipients String[] @default([])         // list of email addresses
+
+  // Dashboard preferences
+  defaultDateRange      String   @default("last_30_days")
+  currency              String   @default("USD")
+  timezone              String   @default("UTC")
+
+  // AI preferences
+  aiInsightsEnabled     Boolean  @default(true)
+  aiAdvisorEnabled      Boolean  @default(true)
+
+  // Low stock threshold
+  lowStockThreshold     Int      @default(10)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AiInsight {
   id          String   @id @default(cuid())
   shopId      String
   shop        Shop     @relation(fields: [shopId], references: [id])
-  type        String   // "daily_summary" | "anomaly" | "opportunity" | "nl_query"
+  type        String
   title       String
   content     String
   data        Json?
@@ -66,4 +98,18 @@ model CacheEntry {
 
   @@unique([shopId, key])
   @@index([shopId, key])
+}
+
+model EmailReport {
+  id          String   @id @default(cuid())
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  type        String   // weekly | monthly
+  sentAt      DateTime @default(now())
+  recipients  String[]
+  subject     String
+  status      String   @default("sent") // sent | failed
+  data        Json?
+
+  @@index([shopId, sentAt])
 }
