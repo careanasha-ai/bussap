@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "shopify app dev",
     "build": "remix vite:build",
-    "start": "node server/index.js",
-    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
+    "start": "remix-serve ./build/server/index.js",
     "setup": "prisma generate && prisma migrate deploy",
-    "docker-start": "npm run setup && npm run start",
+    "postinstall": "prisma generate",
+    "docker-start": "npm run setup && npm run build && npm run start",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate"
   },
