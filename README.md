@@ -1,4 +1,4 @@
-# StoreIQ — Shopify Business Intelligence App
+# Crestline — Shopify Business Intelligence App
 
 > AI-powered analytics and insights for Shopify merchants. Understand your store's performance at a glance with intelligent dashboards, natural language queries, and proactive AI recommendations.
 
@@ -31,6 +31,18 @@
 - Customer acquisition trends
 - Top customers by lifetime value
 - Geographic distribution
+
+### 🔄 Cohort Retention Analysis
+- Monthly cohort table showing repeat purchase rates
+- Retention curves by acquisition month
+- Revenue per cohort over time
+- Best-performing acquisition periods
+
+### 📈 Revenue Forecasting
+- 30/60/90-day revenue projections
+- Trend-based forecasting using historical data
+- Seasonal pattern detection
+- Confidence intervals for projections
 
 ### 📦 Inventory Intelligence
 - Days of stock remaining (based on sell velocity)
@@ -73,10 +85,7 @@ npm install
 
 ### 2. Set Up Shopify App
 
-1. Go to [Shopify Partner Dashboard](https://partners.shopify.com)
-2. Create a new app → **Public app**
-3. Copy your **API key** and **API secret**
-4. Set the App URL to your Railway deployment URL
+See the full [Shopify Partner Setup Guide](#-shopify-partner-setup-guide) below.
 
 ### 3. Configure Environment Variables
 
@@ -84,15 +93,7 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env`:
-```env
-SHOPIFY_API_KEY=your_api_key_here
-SHOPIFY_API_SECRET=your_api_secret_here
-SHOPIFY_APP_URL=https://your-app.railway.app
-DATABASE_URL=postgresql://...
-SESSION_SECRET=your_random_secret_here
-OPENAI_API_KEY=sk-your-openai-key
-```
+Edit `.env` with your credentials.
 
 ### 4. Set Up Database
 
@@ -107,58 +108,181 @@ npx prisma generate
 npm run dev
 ```
 
-This starts the Shopify CLI dev server with tunneling.
+---
+
+## 🛍️ Shopify Partner Setup Guide
+
+### Step 1: Create a Shopify Partner Account
+
+1. Go to [partners.shopify.com](https://partners.shopify.com)
+2. Click **Join now** and complete registration
+3. Verify your email address
+4. You'll land on the **Partner Dashboard**
 
 ---
 
-## 🚂 Deploy to Railway
+### Step 2: Create a Development Store
 
-### One-Click Deploy
+You need a test store to develop and install your app.
 
-1. Push this repo to GitHub
-2. Go to [Railway](https://railway.app) → **New Project** → **Deploy from GitHub**
-3. Select this repository
-4. Add a **PostgreSQL** plugin
-5. Set environment variables (see `.env.example`)
-6. Railway auto-deploys on every push
-
-### Environment Variables on Railway
-
-Set these in Railway's Variables tab:
-```
-SHOPIFY_API_KEY
-SHOPIFY_API_SECRET
-SHOPIFY_APP_URL        # Your Railway app URL
-SESSION_SECRET         # Random 32+ char string
-OPENAI_API_KEY
-NODE_ENV=production
-SCOPES=read_orders,read_products,read_customers,read_reports,read_inventory,read_analytics,read_marketing_events,read_shipping,read_discounts
-```
-
-`DATABASE_URL` is automatically set by Railway's PostgreSQL plugin.
+1. In Partner Dashboard → click **Stores** in the left sidebar
+2. Click **Add store** → select **Development store**
+3. Fill in:
+   - **Store name**: e.g. `crestline-dev`
+   - **Store purpose**: `Testing and building`
+   - **Data**: Choose "Start with test data" (gives you sample orders/products)
+4. Click **Save** — your dev store URL will be `crestline-dev.myshopify.com`
 
 ---
 
-## 🏗️ Architecture
+### Step 3: Create the App in Partner Dashboard
 
+1. In Partner Dashboard → click **Apps** in the left sidebar
+2. Click **Create app** → select **Create app manually**
+3. Fill in:
+   - **App name**: `Crestline`
+   - **App URL**: `https://your-app.railway.app` *(update after Railway deploy)*
+   - **Allowed redirection URL(s)**:
+     ```
+     https://your-app.railway.app/auth/callback
+     https://your-app.railway.app/auth/shopify/callback
+     https://your-app.railway.app/api/auth/callback
+     ```
+4. Click **Create app**
+5. You'll see your **API key** and **API secret key** — copy both
+
+---
+
+### Step 4: Configure App Scopes
+
+1. In your app settings → click **Configuration** tab
+2. Under **Admin API integration** → click **Configure**
+3. Enable these scopes:
+   - `read_orders`
+   - `read_products`
+   - `read_customers`
+   - `read_reports` *(required for ShopifyQL)*
+   - `read_inventory`
+   - `read_analytics`
+   - `read_marketing_events`
+   - `read_shipping`
+   - `read_discounts`
+4. Click **Save**
+
+---
+
+### Step 5: Update shopify.app.toml
+
+Edit `shopify.app.toml` in the project root:
+
+```toml
+name = "Crestline"
+client_id = "YOUR_API_KEY_FROM_STEP_3"
+application_url = "https://YOUR_RAILWAY_URL.railway.app"
 ```
-┌─────────────────────────────────────────┐
-│         Shopify Admin (iframe)           │
-│    React + Polaris + App Bridge          │
-└──────────────┬──────────────────────────┘
-               │
-┌──────────────▼──────────────────────────┐
-│           Railway Backend                │
-│  Remix (React Router) + Node.js          │
-│  ShopifyQL Service + AI Service          │
-│  PostgreSQL (sessions + cache)           │
-└──────────────┬──────────────────────────┘
-               │
-┌──────────────▼──────────────────────────┐
-│         Shopify Platform                 │
-│  GraphQL Admin API + ShopifyQL           │
-└─────────────────────────────────────────┘
+
+---
+
+## 🚂 Railway Deployment Guide
+
+### Step 1: Push to GitHub
+
+```bash
+git add -A
+git commit -m "Configure for deployment"
+git push origin master
 ```
+
+### Step 2: Create Railway Project
+
+1. Go to [railway.app](https://railway.app) → **Login with GitHub**
+2. Click **New Project**
+3. Select **Deploy from GitHub repo**
+4. Choose `careanasha-ai/bussap`
+5. Railway will detect the `railway.toml` and start building
+
+### Step 3: Add PostgreSQL Database
+
+1. In your Railway project → click **+ New**
+2. Select **Database** → **Add PostgreSQL**
+3. Railway creates the DB and auto-sets `DATABASE_URL` in your environment
+
+### Step 4: Set Environment Variables
+
+In Railway project → click your app service → **Variables** tab → add:
+
+| Variable | Value |
+|----------|-------|
+| `SHOPIFY_API_KEY` | From Shopify Partner Dashboard |
+| `SHOPIFY_API_SECRET` | From Shopify Partner Dashboard |
+| `SHOPIFY_APP_URL` | Your Railway URL (e.g. `https://bussap-production.up.railway.app`) |
+| `SESSION_SECRET` | Run `openssl rand -hex 32` to generate |
+| `OPENAI_API_KEY` | From [platform.openai.com](https://platform.openai.com) |
+| `NODE_ENV` | `production` |
+| `SCOPES` | `read_orders,read_products,read_customers,read_reports,read_inventory,read_analytics,read_marketing_events,read_shipping,read_discounts` |
+
+> `DATABASE_URL` is automatically injected by Railway's PostgreSQL plugin — do NOT set it manually.
+
+### Step 5: Get Your Railway URL
+
+1. In Railway → click your app service → **Settings** tab
+2. Under **Networking** → click **Generate Domain**
+3. Copy the URL (e.g. `https://bussap-production.up.railway.app`)
+
+### Step 6: Update Shopify App URLs
+
+Go back to Shopify Partner Dashboard → your app → **Configuration**:
+- **App URL**: `https://bussap-production.up.railway.app`
+- **Allowed redirection URLs**:
+  ```
+  https://bussap-production.up.railway.app/auth/callback
+  https://bussap-production.up.railway.app/auth/shopify/callback
+  https://bussap-production.up.railway.app/api/auth/callback
+  ```
+
+Also update `shopify.app.toml`:
+```toml
+application_url = "https://bussap-production.up.railway.app"
+```
+
+### Step 7: Run Database Migrations
+
+Railway runs `npm run docker-start` which calls `prisma migrate deploy` automatically on each deploy. For the first deploy, this creates all tables.
+
+To verify, check Railway logs — you should see:
+```
+✓ Generated Prisma Client
+✓ Running migrations...
+✓ Server started on port 3000
+```
+
+### Step 8: Install App on Dev Store
+
+1. In Shopify Partner Dashboard → **Apps** → click **Crestline**
+2. Click **Test your app** → select your development store
+3. Click **Install app**
+4. You'll be redirected through OAuth → app installs
+5. You should see the Crestline dashboard inside your Shopify admin!
+
+---
+
+### Troubleshooting
+
+**"App not found" error:**
+- Check that `SHOPIFY_API_KEY` matches exactly what's in Partner Dashboard
+- Ensure `SHOPIFY_APP_URL` has no trailing slash
+
+**OAuth redirect mismatch:**
+- Verify all 3 redirect URLs are added in Partner Dashboard
+- URLs must match exactly (https, no trailing slash)
+
+**Database connection error:**
+- Check Railway logs — ensure PostgreSQL plugin is connected
+- `DATABASE_URL` should be auto-set; if not, copy it from the PostgreSQL service
+
+**ShopifyQL returns no data:**
+- Ensure `read_reports` scope is enabled
+- Dev stores with test data should return results immediately
 
 ---
 
@@ -168,32 +292,35 @@ SCOPES=read_orders,read_products,read_customers,read_reports,read_inventory,read
 bussap/
 ├── app/
 │   ├── routes/
-│   │   ├── app._index.tsx      # Dashboard
-│   │   ├── app.sales.tsx       # Sales analytics
-│   │   ├── app.products.tsx    # Product intelligence
-│   │   ├── app.customers.tsx   # Customer insights
-│   │   ├── app.inventory.tsx   # Inventory management
-│   │   ├── app.promotions.tsx  # Discount analytics
-│   │   ├── app.ai-advisor.tsx  # AI Advisor
-│   │   ├── app.ask.tsx         # NL Query interface
-│   │   └── webhooks.tsx        # Webhook handlers
+│   │   ├── app._index.tsx        # Dashboard
+│   │   ├── app.sales.tsx         # Sales analytics
+│   │   ├── app.products.tsx      # Product intelligence
+│   │   ├── app.customers.tsx     # Customer insights
+│   │   ├── app.cohorts.tsx       # Cohort retention analysis
+│   │   ├── app.forecast.tsx      # Revenue forecasting
+│   │   ├── app.inventory.tsx     # Inventory management
+│   │   ├── app.promotions.tsx    # Discount analytics
+│   │   ├── app.ai-advisor.tsx    # AI Advisor
+│   │   ├── app.ask.tsx           # NL Query interface
+│   │   └── webhooks.tsx          # Webhook handlers
 │   ├── services/
-│   │   ├── shopifyql.server.ts # ShopifyQL + NL→SQL
-│   │   ├── ai.server.ts        # OpenAI integrations
-│   │   ├── inventory.server.ts # Inventory GraphQL
-│   │   ├── customers.server.ts # Customer GraphQL
-│   │   └── discounts.server.ts # Discount GraphQL
+│   │   ├── shopifyql.server.ts   # ShopifyQL + NL→SQL
+│   │   ├── ai.server.ts          # OpenAI integrations
+│   │   ├── inventory.server.ts   # Inventory GraphQL
+│   │   ├── customers.server.ts   # Customer GraphQL
+│   │   ├── discounts.server.ts   # Discount GraphQL
+│   │   └── forecast.server.ts    # Forecasting engine
 │   ├── components/
-│   │   ├── kpi-card/           # KPI metric cards
-│   │   ├── insight-card/       # AI insight banners
-│   │   └── charts/             # Recharts wrappers
-│   ├── shopify.server.ts       # Shopify auth config
-│   └── db.server.ts            # Prisma client
+│   │   ├── kpi-card/             # KPI metric cards
+│   │   ├── insight-card/         # AI insight banners
+│   │   └── charts/               # Recharts wrappers
+│   ├── shopify.server.ts         # Shopify auth config
+│   └── db.server.ts              # Prisma client
 ├── prisma/
-│   └── schema.prisma           # Database schema
-├── shopify.app.toml            # Shopify app config
-├── railway.toml                # Railway deploy config
-└── vite.config.ts              # Vite/Remix config
+│   └── schema.prisma             # Database schema
+├── shopify.app.toml              # Shopify app config
+├── railway.toml                  # Railway deploy config
+└── vite.config.ts                # Vite/Remix config
 ```
 
 ---
@@ -201,22 +328,16 @@ bussap/
 ## 🔑 Required Shopify Scopes
 
 ```
-read_orders
-read_products
-read_customers
-read_reports
-read_inventory
-read_analytics
-read_marketing_events
-read_shipping
-read_discounts
+read_orders           read_products         read_customers
+read_reports          read_inventory        read_analytics
+read_marketing_events read_shipping         read_discounts
 ```
 
 ---
 
 ## 🤖 AI Features
 
-StoreIQ uses **GPT-4o** for:
+Crestline uses **GPT-4o** for:
 - **Daily insights** — Plain-English summaries of your store's performance
 - **AI Advisor** — Structured report with insights, opportunities, and warnings
 - **Natural Language Queries** — Translates plain English to ShopifyQL
@@ -227,9 +348,17 @@ AI insights are cached for 6 hours to minimize API costs.
 
 ## 📈 Roadmap
 
-- [ ] Cohort retention analysis
+- [x] Dashboard with KPI cards
+- [x] Sales analytics
+- [x] Product intelligence
+- [x] Customer insights
+- [x] Inventory intelligence
+- [x] Promotions analytics
+- [x] AI Advisor
+- [x] Natural language queries
+- [x] Cohort retention analysis
+- [x] Revenue forecasting
 - [ ] Customer Lifetime Value (CLV) engine
-- [ ] Revenue forecasting (30/60/90 days)
 - [ ] Anomaly detection & alerts
 - [ ] Email digest reports
 - [ ] Shopify App Store submission
@@ -240,7 +369,7 @@ AI insights are cached for 6 hours to minimize API costs.
 
 ## 📄 License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT License
 
 ---
 

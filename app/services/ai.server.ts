@@ -270,8 +270,7 @@ Be specific and end with one actionable recommendation. Keep it under 60 words.`
   return insight;
 }
 
-/**
- * Generate a full AI Advisor report with structured insights
+
  */
 export async function generateFullAdvisorReport(
   shopDomain: string,

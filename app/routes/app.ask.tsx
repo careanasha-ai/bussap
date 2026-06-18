@@ -172,7 +172,7 @@ export default function AskPage() {
         <BlockStack gap="200">
           <InlineStack align="space-between">
             <Text variant="bodySm" as="p" tone="subdued" fontWeight="semibold">
-              {isUser ? "You" : isError ? "Error" : "StoreIQ"}
+              {isUser ? "You" : isError ? "Error" : "Crestline"}
             </Text>
             {msg.query && (
               <Badge tone="info">ShopifyQL</Badge>

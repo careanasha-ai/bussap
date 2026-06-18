@@ -1,4 +1,4 @@
-name = "StoreIQ"
+name = "Crestline"
 client_id = "YOUR_SHOPIFY_API_KEY"
 application_url = "https://YOUR_APP_URL.railway.app"
 embedded = true

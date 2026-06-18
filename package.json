@@ -1,7 +1,7 @@
 {
-  "name": "storeiq",
+  "name": "crestline",
   "version": "1.0.0",
-  "description": "StoreIQ - Shopify Business Intelligence App",
+  "description": "Crestline - Shopify Business Intelligence App",
   "scripts": {
     "dev": "shopify app dev",
     "build": "remix vite:build",
