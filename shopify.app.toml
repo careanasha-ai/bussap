@@ -1,0 +1,44 @@
+name = "StoreIQ"
+client_id = "YOUR_SHOPIFY_API_KEY"
+application_url = "https://YOUR_APP_URL.railway.app"
+embedded = true
+
+[access_scopes]
+scopes = "read_orders,read_products,read_customers,read_reports,read_inventory,read_analytics,read_marketing_events,read_shipping,read_discounts"
+
+[auth]
+redirect_urls = [
+  "https://YOUR_APP_URL.railway.app/auth/callback",
+  "https://YOUR_APP_URL.railway.app/auth/shopify/callback",
+  "https://YOUR_APP_URL.railway.app/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/create", "orders/updated", "orders/paid", "orders/cancelled"]
+  uri = "/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["products/create", "products/update"]
+  uri = "/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["customers/create", "customers/update"]
+  uri = "/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["inventory_levels/update"]
+  uri = "/webhooks"
+
+[pos]
+embedded = false
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = ""
